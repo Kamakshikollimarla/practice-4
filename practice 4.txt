@@ -1,0 +1,71 @@
+use dsai_sales;
+select customer_name from dsai_m_customer order by Customer_Name ASC;
+select * from dsai_m_unit_price order by unit_price desc;
+select * from dsai_t_sales order by customer_ID asc;
+select * from dsai_t_sales order by product_code desc;
+-- 5 left
+select product_name from dsai_m_product as product
+join dsai_m_product_group as group_p on
+product.Product_Group_Code = group_p.Product_Group_code
+order by group_p.Product_Group_code asc;
+select * from dsai_t_sales order by Sales_Date desc;
+select * from dsai_t_sales order by Sales_Quantity asc;
+select product_name from dsai_m_product join
+dsai_m_unit_price on
+dsai_m_product.Product_Code = dsai_m_unit_price.Product_Code
+order by Product_Name asc , Unit_Price desc;
+
+-- section 2
+select customer_id , count(customer_id) from dsai_t_sales group by Customer_ID;
+select avg(unit_price), Product_Group_Code from dsai_m_product join dsai_m_unit_price
+on dsai_m_product.Product_Code = dsai_m_unit_price.Product_Code
+group by Product_Group_Code;
+
+select dsai_t_sales.customer_ID, (dsai_t_sales.sales_quantity * price.unit_price) as total_sales from dsai_t_sales join
+dsai_m_unit_price as price  on dsai_t_sales.Unit_Price_Code = price.Unit_Price_Code
+group by dsai_t_sales.customer_ID having total_sales > 500;
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+select count(customer_ID) from dsai_t_sales group by year(sales_date);
+
+select product_group_name, avg(Unit_Price) from dsai_m_product_group join dsai_m_product on
+dsai_m_product_group.Product_Group_Code = dsai_m_product.Product_Group_Code
+join dsai_m_unit_price on dsai_m_unit_price.Product_Code = dsai_m_product.Product_Code
+group by Product_Group_Name having avg(Unit_Price) > 100;
+
+select count(customer_ID) , sales_date from dsai_t_sales group by Customer_ID having year(Sales_Date) = '2023';
+
+select count(dsai_m_product.Product_Code) as count , Product_Group_Name as category , avg(Unit_Price) as average from dsai_m_product_group join dsai_m_product on
+dsai_m_product_group.Product_Group_Code = dsai_m_product.Product_Group_Code
+join dsai_m_unit_price on dsai_m_unit_price.Product_Code = dsai_m_product.Product_Code
+group by Product_Group_Name having avg(Unit_Price) > 50 ;
+
+select product_group_name, sum(Sales_Quantity*Unit_Price) as total_sales from dsai_m_product_group
+join dsai_m_product on
+dsai_m_product_group.Product_Group_code = dsai_m_product.Product_Group_Code
+join dsai_t_sales on
+dsai_t_sales.Product_Code = dsai_m_product.Product_Code
+join dsai_m_unit_price on
+dsai_m_unit_price.Product_Code = dsai_m_product.Product_Code
+group by Product_Group_Name having total_Sales > 1000;
+
+select count(customer_Id) , weekday(sales_date) from dsai_t_sales
+ group by weekday(Sales_Date) order by weekday(Sales_Date);
+ 
+ select customer_ID, count(*),sum(sales_quantity*unit_price) as total_sales from dsai_t_sales
+ join dsai_m_unit_price on
+ dsai_t_sales.Product_Code = dsai_m_unit_price.Product_Code
+ group by customer_Id 
+ having count(*) > 3 and total_sales > 1000;
+
+select p1.product_group_code, count(*) as product_count, avg(p2.unit_price) as avg_price from dsai_m_product as p1
+join dsai_m_unit_price as p2
+on p1.Product_Code = p2.Product_Code
+group by Product_Group_Code having product_count > 5;
+
+select year(dsai_t_Sales.sales_Date) as year_Sales, sum(dsai_t_sales.sales_quantity * dsai_m_unit_price.Unit_Price) as sales_price
+from dsai_t_Sales
+join dsai_m_unit_price
+on dsai_t_sales.unit_price_code = dsai_m_unit_price.Unit_Price_Code
+group by year(dsai_t_sales.sales_date)
+having year_sales= '2024' and sales_price > 2000;
